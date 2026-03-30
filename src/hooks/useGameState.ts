@@ -1,7 +1,10 @@
 import { useState, useCallback } from 'react';
 import { scenario, type Choice } from '../data/scenario';
 
+export type GameMode = 'classic' | 'retro';
+
 export type GameScreen =
+  | 'modeSelect'
   | 'start'
   | 'goals'
   | 'intro'
@@ -24,6 +27,7 @@ export interface ReflectionAnswer {
 
 export interface GameState {
   screen: GameScreen;
+  gameMode: GameMode;
   currentSceneId: string;
   stress: number;
   trust: number;
@@ -43,7 +47,8 @@ function clamp(value: number, min: number, max: number) {
 
 export function useGameState() {
   const [state, setState] = useState<GameState>({
-    screen: 'start',
+    screen: 'modeSelect',
+    gameMode: 'classic',
     currentSceneId: 'scene-1',
     stress: INITIAL_STRESS,
     trust: INITIAL_TRUST,
@@ -144,9 +149,14 @@ export function useGameState() {
     return { ending: scenario.endings[1], percentage };
   }, [state.choices, state.stress, state.trust]);
 
+  const selectMode = useCallback((mode: GameMode) => {
+    setState((prev) => ({ ...prev, gameMode: mode, screen: 'start' }));
+  }, []);
+
   const resetGame = useCallback(() => {
     setState({
       screen: 'start',
+      gameMode: state.gameMode,
       currentSceneId: 'scene-1',
       stress: INITIAL_STRESS,
       trust: INITIAL_TRUST,
@@ -156,7 +166,20 @@ export function useGameState() {
       darkMode: state.darkMode,
       soundOn: state.soundOn,
     });
-  }, [state.darkMode, state.soundOn]);
+  }, [state.darkMode, state.soundOn, state.gameMode]);
+
+  const backToModeSelect = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      screen: 'modeSelect' as GameScreen,
+      currentSceneId: 'scene-1',
+      stress: INITIAL_STRESS,
+      trust: INITIAL_TRUST,
+      choices: [],
+      lastChoice: null,
+      reflectionAnswers: [],
+    }));
+  }, []);
 
   const toggleDarkMode = useCallback(() => {
     setState((prev) => ({ ...prev, darkMode: !prev.darkMode }));
@@ -179,11 +202,13 @@ export function useGameState() {
     state,
     currentScene,
     navigate,
+    selectMode,
     makeChoice,
     advanceFromFeedback,
     addReflectionAnswer,
     getEnding,
     resetGame,
+    backToModeSelect,
     toggleDarkMode,
     toggleSound,
     progress,

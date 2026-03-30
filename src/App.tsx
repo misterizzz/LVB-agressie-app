@@ -1,4 +1,5 @@
 import { useGameState } from './hooks/useGameState';
+import { ModeSelectScreen } from './pages/ModeSelectScreen';
 import { StartScreen } from './pages/StartScreen';
 import { GoalsScreen } from './pages/GoalsScreen';
 import { IntroScreen } from './pages/IntroScreen';
@@ -7,25 +8,50 @@ import { FeedbackScreen } from './pages/FeedbackScreen';
 import { ResultScreen } from './pages/ResultScreen';
 import { ReflectionScreen } from './pages/ReflectionScreen';
 import { ReviewScreen } from './pages/ReviewScreen';
+import { RetroStartScreen } from './pages/retro/RetroStartScreen';
+import { RetroGoalsScreen } from './pages/retro/RetroGoalsScreen';
+import { RetroSceneScreen } from './pages/retro/RetroSceneScreen';
+import { RetroFeedbackScreen } from './pages/retro/RetroFeedbackScreen';
+import { RetroResultScreen } from './pages/retro/RetroResultScreen';
+import { RetroReflectionScreen } from './pages/retro/RetroReflectionScreen';
+import { RetroReviewScreen } from './pages/retro/RetroReviewScreen';
 
 export default function App() {
   const {
     state,
     currentScene,
     navigate,
+    selectMode,
     makeChoice,
     advanceFromFeedback,
     addReflectionAnswer,
     getEnding,
     resetGame,
+    backToModeSelect,
     toggleDarkMode,
     progress,
   } = useGameState();
 
+  const isRetro = state.gameMode === 'retro';
+
   const renderScreen = () => {
     switch (state.screen) {
-      case 'start':
+      case 'modeSelect':
         return (
+          <ModeSelectScreen
+            onSelect={selectMode}
+            darkMode={state.darkMode}
+            onToggleDarkMode={toggleDarkMode}
+          />
+        );
+
+      case 'start':
+        return isRetro ? (
+          <RetroStartScreen
+            onStart={() => navigate('goals')}
+            onBack={backToModeSelect}
+          />
+        ) : (
           <StartScreen
             onStart={() => navigate('goals')}
             darkMode={state.darkMode}
@@ -34,14 +60,30 @@ export default function App() {
         );
 
       case 'goals':
-        return <GoalsScreen onContinue={() => navigate('intro')} />;
+        return isRetro ? (
+          <RetroGoalsScreen onContinue={() => navigate('intro')} />
+        ) : (
+          <GoalsScreen onContinue={() => navigate('intro')} />
+        );
 
       case 'intro':
-        return <IntroScreen onContinue={() => navigate('scene')} />;
+        return isRetro ? (
+          <RetroGoalsScreen onContinue={() => navigate('scene')} />
+        ) : (
+          <IntroScreen onContinue={() => navigate('scene')} />
+        );
 
       case 'scene':
         if (!currentScene) return null;
-        return (
+        return isRetro ? (
+          <RetroSceneScreen
+            scene={currentScene}
+            stress={state.stress}
+            trust={state.trust}
+            progress={progress}
+            onChoice={makeChoice}
+          />
+        ) : (
           <SceneScreen
             scene={currentScene}
             stress={state.stress}
@@ -53,7 +95,14 @@ export default function App() {
 
       case 'feedback':
         if (!state.lastChoice) return null;
-        return (
+        return isRetro ? (
+          <RetroFeedbackScreen
+            choice={state.lastChoice}
+            stress={state.stress}
+            trust={state.trust}
+            onContinue={advanceFromFeedback}
+          />
+        ) : (
           <FeedbackScreen
             choice={state.lastChoice}
             stress={state.stress}
@@ -65,7 +114,17 @@ export default function App() {
 
       case 'result': {
         const { ending, percentage } = getEnding();
-        return (
+        return isRetro ? (
+          <RetroResultScreen
+            ending={ending}
+            percentage={percentage}
+            stress={state.stress}
+            trust={state.trust}
+            choices={state.choices}
+            onReflection={() => navigate('reflection')}
+            onRestart={resetGame}
+          />
+        ) : (
           <ResultScreen
             ending={ending}
             percentage={percentage}
@@ -79,7 +138,14 @@ export default function App() {
       }
 
       case 'reflection':
-        return (
+        return isRetro ? (
+          <RetroReflectionScreen
+            answers={state.reflectionAnswers}
+            onAnswer={addReflectionAnswer}
+            onFinish={() => navigate('review')}
+            onRestart={resetGame}
+          />
+        ) : (
           <ReflectionScreen
             answers={state.reflectionAnswers}
             onAnswer={addReflectionAnswer}
@@ -89,7 +155,12 @@ export default function App() {
         );
 
       case 'review':
-        return (
+        return isRetro ? (
+          <RetroReviewScreen
+            answers={state.reflectionAnswers}
+            onRestart={resetGame}
+          />
+        ) : (
           <ReviewScreen
             answers={state.reflectionAnswers}
             onRestart={resetGame}
@@ -103,7 +174,11 @@ export default function App() {
 
   return (
     <div className={state.darkMode ? 'dark' : ''}>
-      <div className="min-h-screen bg-warm-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+      <div className={`min-h-screen transition-colors duration-300 ${
+        isRetro && state.screen !== 'modeSelect'
+          ? 'bg-gray-950 text-green-400'
+          : 'bg-warm-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100'
+      }`}>
         <div className="max-w-lg mx-auto min-h-screen">
           {renderScreen()}
         </div>
