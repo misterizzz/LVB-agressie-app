@@ -52,7 +52,7 @@ export function RetroStartScreen({ onStart, onBack }: RetroStartScreenProps) {
         {/* Pixel avatars facing each other */}
         <div className="flex items-end justify-center gap-8 py-4">
           <div className="text-center">
-            <PixelAvatar character="begeleider" state="idle" size={72} />
+            <PixelAvatar character="begeleider" state="observing" size={72} />
             <p className="text-[9px] text-blue-400 mt-1" style={{ fontFamily: 'monospace' }}>
               JIJ
             </p>
@@ -61,7 +61,7 @@ export function RetroStartScreen({ onStart, onBack }: RetroStartScreenProps) {
             VS
           </div>
           <div className="text-center">
-            <PixelAvatar character="milan" state="idle" size={72} />
+            <PixelAvatar character="milan" state="fidgeting" size={72} />
             <p className="text-[9px] text-red-400 mt-1" style={{ fontFamily: 'monospace' }}>
               MILAN
             </p>

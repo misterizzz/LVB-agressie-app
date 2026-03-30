@@ -23,9 +23,9 @@ export function RetroResultScreen({
   onRestart,
 }: RetroResultScreenProps) {
   const typeConfig = {
-    good: { border: 'border-green-500', text: 'text-green-400', bg: 'bg-green-950/30', icon: '★★★', avatarState: 'happy' as const },
-    mixed: { border: 'border-yellow-500', text: 'text-yellow-400', bg: 'bg-yellow-950/30', icon: '★★☆', avatarState: 'idle' as const },
-    bad: { border: 'border-red-500', text: 'text-red-400', bg: 'bg-red-950/30', icon: '★☆☆', avatarState: 'angry' as const },
+    good: { border: 'border-green-500', text: 'text-green-400', bg: 'bg-green-950/30', icon: '★★★', avatarState: 'calm' as const },
+    mixed: { border: 'border-yellow-500', text: 'text-yellow-400', bg: 'bg-yellow-950/30', icon: '★★☆', avatarState: 'calming' as const },
+    bad: { border: 'border-red-500', text: 'text-red-400', bg: 'bg-red-950/30', icon: '★☆☆', avatarState: 'screaming' as const },
   };
   const config = typeConfig[ending.type];
 
